@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { ProductForm } from "@/app/admin/productForm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { deleteProduct } from "@/lib/products";
+
 export default async function AdminDashboard() {
   const [products, categories] = await Promise.all([
     prisma.product.findMany({ include: { category: true }, orderBy: { createdAt: "desc" } }),
@@ -33,21 +34,26 @@ export default async function AdminDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id} className="border-white/5 hover:bg-white/5">
-                    <TableCell className="font-medium text-white max-w-[150px] truncate">{product.name}</TableCell>
-                    <TableCell><span className="text-xs bg-white/5 px-2 py-1 rounded-md">{product.category?.name}</span></TableCell>
-                    <TableCell className="text-orange-400 font-bold">{product.price} ج.م</TableCell>
-                    <TableCell>{product.stock} قطع</TableCell>
-                    <TableCell className="text-center">
-                      <form action={async () => { "use server"; await deleteProduct(product.id); }}>
-                        <button type="submit" className="text-xs text-red-400 hover:text-red-500 font-bold bg-red-500/10 px-3 py-1.5 rounded-xl border border-red-500/20">
-                          حذف
-                        </button>
-                      </form>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {products.map((product) => {
+                  // ربط معرف المنتج بالدالة بشكل مسبق لمنع خطأ الـ dynamic closure في الـ map
+                  const deleteProductWithId = deleteProduct.bind(null, product.id);
+
+                  return (
+                    <TableRow key={product.id} className="border-white/5 hover:bg-white/5">
+                      <TableCell className="font-medium text-white max-w-[150px] truncate">{product.name}</TableCell>
+                      <TableCell><span className="text-xs bg-white/5 px-2 py-1 rounded-md">{product.category?.name}</span></TableCell>
+                      <TableCell className="text-orange-400 font-bold">{product.price} ج.م</TableCell>
+                      <TableCell>{product.stock} قطع</TableCell>
+                      <TableCell className="text-center">
+                        <form action={deleteProductWithId}>
+                          <button type="submit" className="text-xs text-red-400 hover:text-red-500 font-bold bg-red-500/10 px-3 py-1.5 rounded-xl border border-red-500/20">
+                            حذف
+                          </button>
+                        </form>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
