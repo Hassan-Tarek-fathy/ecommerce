@@ -128,8 +128,8 @@ export default async function ProductsPage({ searchParams }: SearchProps) {
                       id: product.id,
                       title: product.name,
                       price: product.price,
-                      oldPrice: product.discountPrice || undefined,
-                      image: product.images[0] || "/placeholder.jpg",
+                      oldPrice: product.discountPrice ?? null,              
+                       image: product.images[0] || "/placeholder.jpg",
                       category: product.category.name,
                       rating: product.rating,
                     }}
