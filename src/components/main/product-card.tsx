@@ -12,7 +12,7 @@ export interface ProductProps {
     id: string;
     title: string;
     price: number;
-    oldPrice?: number;
+    oldPrice: number | null  ;
     image: string;
     category: string;
     rating: number;
